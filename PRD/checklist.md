@@ -18,14 +18,14 @@
 - [x] Source/target column display
 - [x] Basic mapping interface
 - [x] Data type detection
-- [ ] Preview mapped data
-- [ ] Test mapping functionality
+- [x] Preview mapped data
+- [x] Test mapping functionality
 
 ## Checkpoint 4: Transformation Rules
-- [ ] Data type conversion system
-- [ ] Basic transformations (string, number, date)
-- [ ] Transformation preview
-- [ ] Validation rules
+- [x] Data type conversion system
+- [x] Basic transformations (string, number, date)
+- [x] Transformation preview
+- [x] Validation rules
 - [ ] Test transformations
 
 ## Checkpoint 5: Export System

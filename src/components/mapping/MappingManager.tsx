@@ -17,12 +17,16 @@ interface MappingManagerProps {
   sourceColumns: Column[];
   targetColumns: Column[];
   onMappingChange: (mappings: Mapping[]) => void;
+  onMappingSelect?: (mapping: Mapping) => void;
+  selectedMapping?: Mapping | null;
 }
 
 export const MappingManager: React.FC<MappingManagerProps> = ({
   sourceColumns,
   targetColumns,
   onMappingChange,
+  onMappingSelect,
+  selectedMapping,
 }) => {
   const [selectedSource, setSelectedSource] = useState<Column | undefined>(undefined);
   const [selectedTarget, setSelectedTarget] = useState<Column | undefined>(undefined);
@@ -86,7 +90,13 @@ export const MappingManager: React.FC<MappingManagerProps> = ({
             {mappings.map((mapping, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 border border-border rounded-md"
+                className={`
+                  flex items-center justify-between p-3 border rounded-md cursor-pointer
+                  ${selectedMapping?.source.key === mapping.source.key && selectedMapping?.target.key === mapping.target.key
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'}
+                `}
+                onClick={() => onMappingSelect?.(mapping)}
               >
                 <div className="flex items-center space-x-4">
                   <div>
