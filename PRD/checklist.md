@@ -15,9 +15,9 @@
 - [x] Test with sample files
 
 ## Checkpoint 3: Data Mapping Foundation
-- [ ] Source/target column display
-- [ ] Basic mapping interface
-- [ ] Data type detection
+- [x] Source/target column display
+- [x] Basic mapping interface
+- [x] Data type detection
 - [ ] Preview mapped data
 - [ ] Test mapping functionality
 

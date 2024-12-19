@@ -8,8 +8,10 @@ import { Select } from '../components/ui/Select';
 import { Button } from '../components/ui/Button';
 import { processFile, ProcessedData, FileProcessingConfig } from '../services/fileProcessing';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export const FileImport: React.FC = () => {
+  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [processedData, setProcessedData] = useState<ProcessedData | null>(null);
   const [config, setConfig] = useState<FileProcessingConfig>({
@@ -34,6 +36,7 @@ export const FileImport: React.FC = () => {
       } else {
         setProcessedData(result);
         toast.success('File processed successfully');
+        navigate('/mapping', { state: { processedData: result } });
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error processing file');

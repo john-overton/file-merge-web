@@ -1,5 +1,6 @@
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import { detectColumnType, DataType } from './dataTypeDetection';
 
 export interface FileProcessingConfig {
   delimiter?: string;
@@ -12,6 +13,8 @@ export interface ProcessedData {
   columns: Array<{
     key: string;
     header: string;
+    type: DataType;
+    confidence: number;
   }>;
   totalRows: number;
   error?: string;
@@ -76,14 +79,26 @@ const processCSV = (
           console.log('First row data:', firstRow);
 
           const columns = config.headers
-            ? Object.keys(firstRow).map(key => ({
-                key,
-                header: key
-              }))
-            : Object.keys(firstRow).map((_, index) => ({
-                key: `col${index}`,
-                header: `Column ${index + 1}`
-              }));
+            ? Object.keys(firstRow).map(key => {
+                const values = results.data.map(row => String((row as Record<string, unknown>)[key]));
+                const { type, confidence } = detectColumnType(values);
+                return {
+                  key,
+                  header: key,
+                  type,
+                  confidence
+                };
+              })
+            : Object.keys(firstRow).map((_, index) => {
+                const values = results.data.map(row => String(Object.values(row as Record<string, unknown>)[index]));
+                const { type, confidence } = detectColumnType(values);
+                return {
+                  key: `col${index}`,
+                  header: `Column ${index + 1}`,
+                  type,
+                  confidence
+                };
+              });
 
           console.log('Generated columns:', columns);
 
@@ -134,15 +149,27 @@ const processExcel = async (
         }
 
         const firstRow = jsonData[0] as Record<string, unknown>;
-        const columns = config.headers
-          ? Object.keys(firstRow).map(key => ({
-              key,
-              header: key
-            }))
-          : Object.keys(firstRow).map((_, index) => ({
-              key: `${index}`,
-              header: `Column ${index + 1}`
-            }));
+          const columns = config.headers
+            ? Object.keys(firstRow).map(key => {
+                const values = jsonData.map(row => String((row as Record<string, unknown>)[key]));
+                const { type, confidence } = detectColumnType(values);
+                return {
+                  key,
+                  header: key,
+                  type,
+                  confidence
+                };
+              })
+            : Object.keys(firstRow).map((_, index) => {
+                const values = jsonData.map(row => String(Object.values(row as Record<string, unknown>)[index]));
+                const { type, confidence } = detectColumnType(values);
+                return {
+                  key: `${index}`,
+                  header: `Column ${index + 1}`,
+                  type,
+                  confidence
+                };
+              });
 
         console.log('Generated columns:', columns);
 
