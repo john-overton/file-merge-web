@@ -8,11 +8,11 @@
 - [x] Test the build process
 
 ## Checkpoint 2: File Import
-- [ ] File upload component
-- [ ] CSV/XLSX file reading logic
-- [ ] File preview grid component
-- [ ] Basic error handling
-- [ ] Test with sample files
+- [x] File upload component
+- [x] CSV/XLSX file reading logic
+- [x] File preview grid component
+- [x] Basic error handling
+- [x] Test with sample files
 
 ## Checkpoint 3: Data Mapping Foundation
 - [ ] Source/target column display
