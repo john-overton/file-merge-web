@@ -11,10 +11,15 @@ import { DataGrid } from '../components/data/DataGrid';
 import { toast } from 'react-hot-toast';
 import { ExportConfig } from '../components/export/ExportConfig';
 import { exportData, downloadFile, ExportConfig as ExportConfigType } from '../services/exportService';
+import { ConfigurationManager } from '../components/project/ConfigurationManager';
+import { ProjectConfig, saveConfiguration } from '../services/configurationService';
+
+import { DataType } from '../services/dataTypeDetection';
 
 interface Column {
   key: string;
   header: string;
+  type?: DataType;
 }
 
 interface Mapping {
@@ -39,6 +44,7 @@ export const DataMapping: React.FC = () => {
   const [selectedMapping, setSelectedMapping] = useState<Mapping | null>(null);
   const [transformedData, setTransformedData] = useState<TransformedData | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [currentConfig, setCurrentConfig] = useState<ProjectConfig>();
 
   // Get the processed data from location state
   const sourceData = location.state?.processedData as ProcessedData;
@@ -106,6 +112,58 @@ export const DataMapping: React.FC = () => {
     }
   };
 
+  const handleConfigSave = async (config: ProjectConfig) => {
+    const configToSave = {
+      ...config,
+      mappings: mappings.map(mapping => ({
+        source: {
+          key: mapping.source.key,
+          header: mapping.source.header,
+          type: mapping.source.type
+        },
+        target: {
+          key: mapping.target.key,
+          header: mapping.target.header,
+          type: mapping.target.type
+        }
+      })),
+      transformationRules
+    };
+
+    try {
+      await saveConfiguration(configToSave);
+      setCurrentConfig(configToSave);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleConfigLoad = (config: ProjectConfig) => {
+    try {
+      // Convert saved mappings back to the correct format
+      const loadedMappings = config.mappings.map(mapping => ({
+        source: {
+          key: mapping.source.key,
+          header: mapping.source.header,
+          type: mapping.source.type
+        },
+        target: {
+          key: mapping.target.key,
+          header: mapping.target.header,
+          type: mapping.target.type
+        }
+      }));
+
+      setMappings(loadedMappings);
+      setTransformationRules(config.transformationRules);
+      setCurrentConfig(config);
+      toast.success('Configuration loaded successfully');
+    } catch (error) {
+      console.error('Error loading configuration:', error);
+      toast.error('Failed to load configuration');
+    }
+  };
+
   return (
     <MainLayout>
       <SplitPanel
@@ -115,13 +173,18 @@ export const DataMapping: React.FC = () => {
             <div className="text-sm text-text-secondary">
               <p>Total Rows: {sourceData.totalRows}</p>
               <p>Columns: {sourceData.columns.length}</p>
-              <div className="mt-6">
+              <div className="mt-6 space-y-6">
                 {transformedData && transformedData.data.length > 0 && (
                   <ExportConfig
                     onExport={handleExport}
                     isExporting={isExporting}
                   />
                 )}
+                <ConfigurationManager
+                  currentConfig={currentConfig}
+                  onConfigLoad={handleConfigLoad}
+                  onConfigSave={handleConfigSave}
+                />
               </div>
             </div>
           </div>
@@ -132,6 +195,7 @@ export const DataMapping: React.FC = () => {
             <MappingManager
               sourceColumns={sourceData.columns}
               targetColumns={targetColumns}
+              mappings={mappings}
               onMappingChange={handleMappingChange}
               onMappingSelect={handleMappingSelect}
               selectedMapping={selectedMapping}
@@ -181,5 +245,4 @@ export const DataMapping: React.FC = () => {
       />
     </MainLayout>
   );
-
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ColumnList } from './ColumnList';
 import { Button } from '../ui/Button';
 import { Card } from '../layout/Card';
@@ -16,6 +16,7 @@ interface Mapping {
 interface MappingManagerProps {
   sourceColumns: Column[];
   targetColumns: Column[];
+  mappings: Mapping[];
   onMappingChange: (mappings: Mapping[]) => void;
   onMappingSelect?: (mapping: Mapping) => void;
   selectedMapping?: Mapping | null;
@@ -24,19 +25,25 @@ interface MappingManagerProps {
 export const MappingManager: React.FC<MappingManagerProps> = ({
   sourceColumns,
   targetColumns,
+  mappings,
   onMappingChange,
   onMappingSelect,
   selectedMapping,
 }) => {
   const [selectedSource, setSelectedSource] = useState<Column | undefined>(undefined);
   const [selectedTarget, setSelectedTarget] = useState<Column | undefined>(undefined);
-  const [mappings, setMappings] = useState<Mapping[]>([]);
+  const [internalMappings, setInternalMappings] = useState<Mapping[]>([]);
+
+  // Sync internal mappings with props
+  useEffect(() => {
+    setInternalMappings(mappings);
+  }, [mappings]);
 
   const handleAddMapping = () => {
     if (selectedSource && selectedTarget) {
       const newMapping = { source: selectedSource, target: selectedTarget };
-      const updatedMappings = [...mappings, newMapping];
-      setMappings(updatedMappings);
+      const updatedMappings = [...internalMappings, newMapping];
+      setInternalMappings(updatedMappings);
       onMappingChange(updatedMappings);
       setSelectedSource(undefined);
       setSelectedTarget(undefined);
@@ -44,13 +51,13 @@ export const MappingManager: React.FC<MappingManagerProps> = ({
   };
 
   const handleRemoveMapping = (index: number) => {
-    const updatedMappings = mappings.filter((_, i) => i !== index);
-    setMappings(updatedMappings);
+    const updatedMappings = internalMappings.filter((_, i) => i !== index);
+    setInternalMappings(updatedMappings);
     onMappingChange(updatedMappings);
   };
 
   const isColumnMapped = (column: Column, type: 'source' | 'target') => {
-    return mappings.some(mapping => 
+    return internalMappings.some(mapping => 
       type === 'source' 
         ? mapping.source.key === column.key 
         : mapping.target.key === column.key
@@ -83,11 +90,11 @@ export const MappingManager: React.FC<MappingManagerProps> = ({
         </Button>
       </div>
 
-      {mappings.length > 0 && (
+      {internalMappings.length > 0 && (
         <Card>
           <h3 className="text-lg font-medium text-text mb-4">Current Mappings</h3>
           <div className="space-y-2">
-            {mappings.map((mapping, index) => (
+            {internalMappings.map((mapping, index) => (
               <div
                 key={index}
                 className={`
