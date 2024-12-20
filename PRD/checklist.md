@@ -26,7 +26,7 @@
 - [x] Basic transformations (string, number, date)
 - [x] Transformation preview
 - [x] Validation rules
-- [ ] Test transformations
+- [x] Test transformations
 
 ## Checkpoint 5: Export System
 - [ ] Export configuration interface
