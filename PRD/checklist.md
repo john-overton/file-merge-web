@@ -29,11 +29,11 @@
 - [x] Test transformations
 
 ## Checkpoint 5: Export System
-- [ ] Export configuration interface
-- [ ] CSV/XLSX generation
-- [ ] Export preview
-- [ ] Error handling
-- [ ] Test export functionality
+- [x] Export configuration interface
+- [x] CSV/XLSX generation
+- [x] Export preview
+- [x] Error handling
+- [x] Test export functionality
 
 ## Checkpoint 6: Project Management
 - [ ] Save/load configurations

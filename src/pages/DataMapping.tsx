@@ -9,6 +9,8 @@ import { transformData, TransformedData, TransformationRule } from '../services/
 import { TransformationRuleEditor } from '../components/mapping/TransformationRuleEditor';
 import { DataGrid } from '../components/data/DataGrid';
 import { toast } from 'react-hot-toast';
+import { ExportConfig } from '../components/export/ExportConfig';
+import { exportData, downloadFile, ExportConfig as ExportConfigType } from '../services/exportService';
 
 interface Column {
   key: string;
@@ -36,6 +38,7 @@ export const DataMapping: React.FC = () => {
   const [transformationRules, setTransformationRules] = useState<Record<string, TransformationRule>>({});
   const [selectedMapping, setSelectedMapping] = useState<Mapping | null>(null);
   const [transformedData, setTransformedData] = useState<TransformedData | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Get the processed data from location state
   const sourceData = location.state?.processedData as ProcessedData;
@@ -78,6 +81,31 @@ export const DataMapping: React.FC = () => {
     setSelectedMapping(mapping);
   };
 
+  const handleExport = async (config: ExportConfigType) => {
+    if (!transformedData) return;
+
+    setIsExporting(true);
+    try {
+      const result = await exportData(
+        transformedData.data,
+        transformedData.columns,
+        config
+      );
+
+      if (!result.success || !result.blob || !result.fileName) {
+        throw new Error(result.error || 'Export failed');
+      }
+
+      downloadFile(result.blob, result.fileName);
+      toast.success('Export completed successfully');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error(error instanceof Error ? error.message : 'Export failed');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <MainLayout>
       <SplitPanel
@@ -87,6 +115,14 @@ export const DataMapping: React.FC = () => {
             <div className="text-sm text-text-secondary">
               <p>Total Rows: {sourceData.totalRows}</p>
               <p>Columns: {sourceData.columns.length}</p>
+              <div className="mt-6">
+                {transformedData && transformedData.data.length > 0 && (
+                  <ExportConfig
+                    onExport={handleExport}
+                    isExporting={isExporting}
+                  />
+                )}
+              </div>
             </div>
           </div>
         }
@@ -145,4 +181,5 @@ export const DataMapping: React.FC = () => {
       />
     </MainLayout>
   );
+
 };
